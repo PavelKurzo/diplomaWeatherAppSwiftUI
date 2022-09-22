@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State var textFieldText: String = ""
+    @State var textFieldName: String = ""
     @State var showAlert: Bool = false
     @State var isShowingDetailView: Bool = false
     var weatherManager = WeatherManager()
@@ -40,56 +40,61 @@ struct ContentView: View {
         .task {
             do {
                 for city in cities {
-                  let weather = try await weatherManager.getCurrentWeather(city.cityName)
+                    let weather = try await weatherManager.getCurrentWeather(city.cityName)
                     weatherArray.append(weather)
-                    print(cities.enumerated())
-                    print("Success")
                 }
             } catch {
                 print("Error getting weather:\(error)")
+                
+                /*
+                 Here i need to ckeck my array for containing the same city, and in case if there is no such city to do a request with it, then to refresh list. Otherwise alert with notification "you already got this city"
+                 */
             }
         }
     }
     
     var listOfElements: some View {
         List(weatherArray) { item in
-            NavigationLink(destination: DetailView()) {
+            NavigationLink(destination: DetailView(item: item)) {
                 HStack {
                     VStack(alignment: .leading) {
+                        Spacer()
                         Text(item.name)
                             .font(.system(size: 22).weight(.bold))
                             .lineLimit(1)
                         Spacer()
                         Text("\(item.weather[0].main)")
                             .font(.system(size: 20))
+                        Spacer()
                     }
                     .frame(width: 100, alignment: .leading)
                     
                     Spacer()
                     AsyncImage(url: URL(string: "https://openweathermap.org/img/wn/\(getWeatherImage(weather: item))@2x.png"))
-                        { image in
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(maxWidth: 80, maxHeight: 80)
-                        } placeholder: {
-                            ProgressView()
-                        }
+                    { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(maxWidth: 80, maxHeight: 80)
+                    } placeholder: {
+                        ProgressView()
+                    }
                     Spacer()
-                        Text(item.main.temp.roundDouble() + "°")
-                            .font(.system(size: 28).weight(.bold))
-                            .lineLimit(1)
-                            .frame(width: 50)
+                    Text(item.main.temp.roundDouble() + "°")
+                        .font(.system(size: 28).weight(.bold))
+                        .lineLimit(1)
+                        .frame(width: 50)
                 }
                 .frame(maxWidth: .infinity)
             }
             .listRowBackground(Color.clear)
+
         }
     }
     
     var topElements: some View {
         HStack() {
-            TextField("Type in your city", text: $textFieldText)
+            TextField("Type in your city", text: $textFieldName)
                 .frame(width: 260, height: 40)
                 .lineLimit(1)
                 .multilineTextAlignment(.center)
@@ -115,6 +120,7 @@ struct ContentView: View {
             })
         }
         .padding(20)
+        .preferredColorScheme(.dark)
     }
 }
 
