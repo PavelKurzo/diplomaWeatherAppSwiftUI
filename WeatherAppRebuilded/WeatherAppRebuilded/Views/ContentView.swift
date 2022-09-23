@@ -10,10 +10,9 @@ import SwiftUI
 struct ContentView: View {
     @State var textFieldName: String = ""
     @State var showAlert: Bool = false
-    @State var isShowingDetailView: Bool = false
     var weatherManager = WeatherManager()
     @State var weather: ResponseBody?
-    @State var weatherArray: [ResponseBody] = []
+    @State var weatherArray = [ResponseBody]()
     func getWeatherImage(weather: ResponseBody) -> String {
         return weather.weather[0].icon
     }
@@ -45,10 +44,6 @@ struct ContentView: View {
                 }
             } catch {
                 print("Error getting weather:\(error)")
-                
-                /*
-                 Here i need to ckeck my array for containing the same city, and in case if there is no such city to do a request with it, then to refresh list. Otherwise alert with notification "you already got this city"
-                 */
             }
         }
     }
@@ -88,7 +83,6 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity)
             }
             .listRowBackground(Color.clear)
-
         }
     }
     
@@ -99,14 +93,26 @@ struct ContentView: View {
                 .lineLimit(1)
                 .multilineTextAlignment(.center)
                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 30, style: .continuous))
-            
-            Button {} label: {
+            Spacer()
+            Button {
+                if !textFieldName.isEmpty && !weatherArray.map({ $0.name }).contains(textFieldName) {
+                    Task {
+                        print(textFieldName)
+                            let weather = try await weatherManager.getCurrentWeather(textFieldName)
+                            weatherArray.append(weather)
+                        textFieldName = ""
+                    }
+                } else {
+                    print("faillure")
+                }
+            } label: {
                 Image(systemName: "plus.circle")
                     .resizable()
                     .frame(width: 25, height: 25)
                     .foregroundColor(.primary)
-                    .padding()
             }
+            Spacer()
+            
             Button {
                 showAlert.toggle()
             } label: {

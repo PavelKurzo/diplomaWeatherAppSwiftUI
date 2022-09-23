@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct DetailView: View {
-     var item: ResponseBody?
+    var item: ResponseBody
     
     func getWeatherImage(item: ResponseBody) -> String {
         return item.weather[0].icon
@@ -18,7 +18,7 @@ struct DetailView: View {
         ZStack(alignment: .leading) {
             VStack {
                 VStack(alignment: .leading, spacing: 5) {
-                    Text(item?.name ?? "")
+                    Text(item.name)
                         .bold()
                         .font(.title)
                     
@@ -31,27 +31,22 @@ struct DetailView: View {
                 VStack {
                     HStack {
                         VStack(spacing: 20) {
-//                            AsyncImage(url: URL(string: "https://openweathermap.org/img/wn/\(getWeatherImage(item: item!))@2x.png"))
-//                            { image in
-//                                image
-//                                    .resizable()
-//                                    .aspectRatio(contentMode: .fill)
-//                                    .frame(maxWidth: 80, maxHeight: 80)
-//                            } placeholder: {
-//                                ProgressView()
-//                            }
-                            /*
-                             Here is the question about image, how to unwrap it correctly, or how to solve. Crashing an app with exclamation mark Also about the function getWeatherImage. Is it possible to transfer image from the first screen directly to the second one.
-                             Line 34, Line 13.
-                             */
-                                                        
-                            Text(item?.weather[0].main ?? "")
+                            AsyncImage(url: URL(string: "https://openweathermap.org/img/wn/\(getWeatherImage(item: item))@2x.png"))
+                            { image in
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(maxWidth: 80, maxHeight: 80)
+                            } placeholder: {
+                                ProgressView()
+                            }
+                            Text(item.weather[0].main)
                         }
                         .frame(width: 150, alignment: .leading)
                         
                         Spacer()
                         
-                        Text(item?.main.feelsLike.roundDouble() ?? "0")
+                        Text(item.main.feelsLike.roundDouble())
                             .font(.system(size: 100))
                             .fontWeight(.bold)
                             .padding()
@@ -84,15 +79,15 @@ struct DetailView: View {
                         .padding(.bottom)
                     
                     HStack {
-                        WeatherRow(logo: "thermometer", name: "Min temp", value: (item?.main.tempMin.roundDouble() ?? "0") + "°")
+                        WeatherRow(logo: "thermometer", name: "Min temp", value: (item.main.tempMin.roundDouble() + "°"))
                         Spacer()
-                        WeatherRow(logo: "thermometer", name: "Max temp", value: (item?.main.tempMax.roundDouble() ?? "0") + "°")
+                        WeatherRow(logo: "thermometer", name: "Max temp", value: (item.main.tempMax.roundDouble() + "°"))
                     }
                     
                     HStack {
-                        WeatherRow(logo: "wind", name: "wind speed", value: (item?.wind.speed.roundDouble() ?? "0") + "m/s")
+                        WeatherRow(logo: "wind", name: "wind speed", value: (item.wind.speed.roundDouble() + "m/s"))
                         Spacer()
-                        WeatherRow(logo: "humidity", name: "Humidity", value: (item?.main.humidity.roundDouble() ?? "0") + "%")
+                        WeatherRow(logo: "humidity", name: "Humidity", value: (item.main.humidity.roundDouble() + "%"))
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -111,6 +106,6 @@ struct DetailView: View {
 
 struct DetailedView_Previews: PreviewProvider {
     static var previews: some View {
-        DetailView()
+        DetailView(item: previewWeather)
     }
 }
